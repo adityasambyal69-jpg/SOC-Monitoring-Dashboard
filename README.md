@@ -63,3 +63,13 @@ SOC-Monitoring-Dashboard/
 
 ## Project Status
 Completed – SOC Monitoring Dashboard with failed login monitoring and brute-force attack detection.
+## Dashboard Screenshots
+
+### SOC Monitoring Dashboard
+![SOC Dashboard](Screenshot%202026-11-18%20001939.png)
+
+### Failed Login Monitoring
+![Failed Login Analysis](Screenshot%202026-11-18%20001954.png)
+
+### Brute Force Attack Detection
+![Brute Force Detection](Screenshot%202026-11-18%20002016.png)
