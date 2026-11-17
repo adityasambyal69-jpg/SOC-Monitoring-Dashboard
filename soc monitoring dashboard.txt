@@ -1,0 +1,3 @@
+| where FailedAttempts >= 3
+| eval Alert="Possible Brute Force Attack"
+| table _time Username SourceIP FailedAttempts Alert

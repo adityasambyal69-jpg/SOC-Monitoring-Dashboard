@@ -1,0 +1,268 @@
+<form version="1.1" theme="light">
+  <label>soc monitoring dashboard</label>
+  <description>a monitoring dashboard for windows security events failed login attempts and potential brute force attack</description>
+  <fieldset submitButton="false">
+    <input type="time" token="field1">
+      <label></label>
+      <default>
+        <earliest>-24h@h</earliest>
+        <latest>now</latest>
+      </default>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <title>Total Failed Login Attempts</title>
+      <single>
+        <search>
+          <query>index=main sourcetype="XmlWinEventLog:Security"
+| rex field=_raw "&lt;EventID[^&gt;]*&gt;(?&lt;EventCode&gt;[0-9]+)&lt;/EventID&gt;"
+| search EventCode="4625"
+| stats count AS "Total Failed Logins"</query>
+          <earliest>0</earliest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="colorBy">value</option>
+        <option name="colorMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="numberPrecision">0</option>
+        <option name="rangeColors">["0x53a051", "0x0877a6", "0xf8be34", "0xf1813f", "0xdc4e41"]</option>
+        <option name="rangeValues">[0,30,70,100]</option>
+        <option name="showSparkline">1</option>
+        <option name="showTrendIndicator">1</option>
+        <option name="trellis.enabled">0</option>
+        <option name="trellis.scales.shared">1</option>
+        <option name="trellis.size">medium</option>
+        <option name="trendColorInterpretation">standard</option>
+        <option name="trendDisplayMode">absolute</option>
+        <option name="unitPosition">after</option>
+        <option name="useColors">0</option>
+        <option name="useThousandSeparators">1</option>
+      </single>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Failed Logins Over TIme</title>
+      <chart>
+        <search>
+          <query>index=main sourcetype="XmlWinEventLog:Security"
+| rex field=_raw "&lt;EventID[^&gt;]*&gt;(?&lt;EventCode&gt;[0-9]+)&lt;/EventID&gt;"
+| search EventCode="4625"
+| timechart span=1h count AS "Failed Logins"</query>
+          <earliest>0</earliest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
+        <option name="charting.axisLabelsX.majorLabelStyle.rotation">0</option>
+        <option name="charting.axisTitleX.visibility">visible</option>
+        <option name="charting.axisTitleY.visibility">visible</option>
+        <option name="charting.axisTitleY2.visibility">visible</option>
+        <option name="charting.axisX.abbreviation">none</option>
+        <option name="charting.axisX.scale">linear</option>
+        <option name="charting.axisY.abbreviation">none</option>
+        <option name="charting.axisY.scale">linear</option>
+        <option name="charting.axisY2.abbreviation">none</option>
+        <option name="charting.axisY2.enabled">0</option>
+        <option name="charting.axisY2.scale">inherit</option>
+        <option name="charting.chart">line</option>
+        <option name="charting.chart.bubbleMaximumSize">50</option>
+        <option name="charting.chart.bubbleMinimumSize">10</option>
+        <option name="charting.chart.bubbleSizeBy">area</option>
+        <option name="charting.chart.nullValueMode">gaps</option>
+        <option name="charting.chart.showDataLabels">none</option>
+        <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
+        <option name="charting.chart.stackMode">default</option>
+        <option name="charting.chart.style">shiny</option>
+        <option name="charting.drilldown">none</option>
+        <option name="charting.layout.splitSeries">0</option>
+        <option name="charting.layout.splitSeries.allowIndependentYRanges">0</option>
+        <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
+        <option name="charting.legend.mode">standard</option>
+        <option name="charting.legend.placement">right</option>
+        <option name="charting.lineWidth">2</option>
+        <option name="trellis.enabled">0</option>
+        <option name="trellis.scales.shared">1</option>
+        <option name="trellis.size">medium</option>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Top Targeted Usernames</title>
+      <chart>
+        <search>
+          <query>index=main sourcetype="XmlWinEventLog:Security"
+| rex field=_raw "&lt;EventID[^&gt;]*&gt;(?&lt;EventCode&gt;[0-9]+)&lt;/EventID&gt;"
+| search EventCode="4625"
+| rex field=_raw "Data Name=['\"]TargetUserName['\"]&gt;(?&lt;Username&gt;[^&lt;]*)&lt;/Data&gt;"
+| where isnotnull(Username) AND Username!="" AND Username!="-"
+| stats count AS FailedAttempts by Username
+| sort -FailedAttempts</query>
+          <earliest>0</earliest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
+        <option name="charting.axisLabelsX.majorLabelStyle.rotation">0</option>
+        <option name="charting.axisTitleX.visibility">visible</option>
+        <option name="charting.axisTitleY.visibility">visible</option>
+        <option name="charting.axisTitleY2.visibility">visible</option>
+        <option name="charting.axisX.abbreviation">none</option>
+        <option name="charting.axisX.scale">linear</option>
+        <option name="charting.axisY.abbreviation">none</option>
+        <option name="charting.axisY.scale">linear</option>
+        <option name="charting.axisY2.abbreviation">none</option>
+        <option name="charting.axisY2.enabled">0</option>
+        <option name="charting.axisY2.scale">inherit</option>
+        <option name="charting.chart">bar</option>
+        <option name="charting.chart.bubbleMaximumSize">50</option>
+        <option name="charting.chart.bubbleMinimumSize">10</option>
+        <option name="charting.chart.bubbleSizeBy">area</option>
+        <option name="charting.chart.nullValueMode">gaps</option>
+        <option name="charting.chart.showDataLabels">none</option>
+        <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
+        <option name="charting.chart.stackMode">default</option>
+        <option name="charting.chart.style">shiny</option>
+        <option name="charting.drilldown">none</option>
+        <option name="charting.layout.splitSeries">0</option>
+        <option name="charting.layout.splitSeries.allowIndependentYRanges">0</option>
+        <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
+        <option name="charting.legend.mode">standard</option>
+        <option name="charting.legend.placement">right</option>
+        <option name="charting.lineWidth">2</option>
+        <option name="trellis.enabled">0</option>
+        <option name="trellis.scales.shared">1</option>
+        <option name="trellis.size">medium</option>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Top Source IPs</title>
+      <chart>
+        <search>
+          <query>index=main sourcetype="XmlWinEventLog:Security"
+| rex field=_raw "&lt;EventID[^&gt;]*&gt;(?&lt;EventCode&gt;[0-9]+)&lt;/EventID&gt;"
+| search EventCode="4625"
+| rex field=_raw "Data Name=['\"]IpAddress['\"]&gt;(?&lt;SourceIP&gt;[^&lt;]*)&lt;/Data&gt;"
+| where isnotnull(SourceIP) AND SourceIP!="" AND SourceIP!="-"
+| stats count AS FailedAttempts by SourceIP
+| sort -FailedAttempts</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
+        <option name="charting.axisLabelsX.majorLabelStyle.rotation">0</option>
+        <option name="charting.axisTitleX.visibility">visible</option>
+        <option name="charting.axisTitleY.visibility">visible</option>
+        <option name="charting.axisTitleY2.visibility">visible</option>
+        <option name="charting.axisX.abbreviation">none</option>
+        <option name="charting.axisX.scale">linear</option>
+        <option name="charting.axisY.abbreviation">none</option>
+        <option name="charting.axisY.scale">linear</option>
+        <option name="charting.axisY2.abbreviation">none</option>
+        <option name="charting.axisY2.enabled">0</option>
+        <option name="charting.axisY2.scale">inherit</option>
+        <option name="charting.chart">bar</option>
+        <option name="charting.chart.bubbleMaximumSize">50</option>
+        <option name="charting.chart.bubbleMinimumSize">10</option>
+        <option name="charting.chart.bubbleSizeBy">area</option>
+        <option name="charting.chart.nullValueMode">gaps</option>
+        <option name="charting.chart.showDataLabels">none</option>
+        <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
+        <option name="charting.chart.stackMode">default</option>
+        <option name="charting.chart.style">shiny</option>
+        <option name="charting.drilldown">none</option>
+        <option name="charting.layout.splitSeries">0</option>
+        <option name="charting.layout.splitSeries.allowIndependentYRanges">0</option>
+        <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
+        <option name="charting.legend.mode">standard</option>
+        <option name="charting.legend.placement">right</option>
+        <option name="charting.lineWidth">2</option>
+        <option name="trellis.enabled">0</option>
+        <option name="trellis.scales.shared">1</option>
+        <option name="trellis.size">medium</option>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Failed Logins Attempts</title>
+      <table>
+        <search>
+          <query>index=main sourcetype="XmlWinEventLog:Security"
+| rex field=_raw "&lt;EventID[^&gt;]*&gt;(?&lt;EventCode&gt;[0-9]+)&lt;/EventID&gt;"
+| search EventCode="4625"
+| rex field=_raw "TargetUserName.{0,3}(?&lt;Username&gt;[^&lt;]+)"
+| rex field=_raw "IpAddress.{0,3}(?&lt;SourceIP&gt;[^&lt;]+)"
+| rex field=_raw "LogonType.{0,3}(?&lt;LogonType&gt;[^&lt;]+)"
+| rex field=_raw "FailureReason.{0,3}(?&lt;FailureReason&gt;[^&lt;]+)"
+| table _time Username SourceIP LogonType FailureReason</query>
+          <earliest>0</earliest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="percentagesRow">false</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Brute  Force Attack Detection</title>
+      <table>
+        <search>
+          <query>index=main sourcetype="XmlWinEventLog:Security"
+| rex field=_raw "&lt;EventID[^&gt;]*&gt;(?&lt;EventCode&gt;[0-9]+)&lt;/EventID&gt;"
+| search EventCode=4625
+| rex field=_raw "TargetUserName.{0,3}(?&lt;Username&gt;[^&lt;]+)"
+| rex field=_raw "IpAddress.{0,3}(?&lt;SourceIP&gt;[^&lt;]+)"
+| where isnotnull(Username) AND Username!="-"
+| bin _time span=5m
+| stats count AS FailedAttempts by _time Username SourceIP
+| where FailedAttempts &gt;= 3
+| eval Alert="Possible Brute Force Attack"
+| table _time Username SourceIP FailedAttempts Alert
+| sort -_time</query>
+          <earliest>0</earliest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Total Successful logins Attempts</title>
+      <table>
+        <search>
+          <query>index=main sourcetype="XmlWinEventLog:Security"
+| rex field=_raw "&lt;EventID[^&gt;]*&gt;(?&lt;EventCode&gt;[0-9]+)&lt;/EventID&gt;"
+| search EventCode="4624"
+| stats count AS SuccessfulLogins</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+  </row>
+</form>
